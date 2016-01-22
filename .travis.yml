@@ -23,8 +23,8 @@ android:
     # - sys-img-x86-android-17
 
 install:
-  -true
+  - true
 
 script:
-  -./gradlew build
+  - ./gradlew build
 
