@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import pl.elpassion.dmalantowicz.rest_client_example.adapter.ItemAdapter
 import pl.elpassion.door.githubclient.R
 import pl.elpassion.door.githubclient.Repository
 

@@ -1,4 +1,4 @@
-package pl.elpassion.dmalantowicz.rest_client_example.adapter
+package pl.elpassion.door.githubclient.adapter
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
