@@ -34,17 +34,5 @@
             android:layout_height="wrap_content"
             android:hint="@string/search_users_repo" />
 
-    </LinearLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/search_results_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
-    </android.support.v7.widget.RecyclerView>
-
-
-
-
+    </LinearLayout><include layout="@layout/github_search_result_list" />
 </LinearLayout>
