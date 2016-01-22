@@ -1,19 +1,17 @@
-package pl.elpassion.dmalantowicz.rest_client_example.adapter
+package pl.elpassion.door.githubclient.adapter
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
-import com.bumptech.glide.Glide
+import pl.elpassion.dmalantowicz.rest_client_example.adapter.ItemAdapter
 import pl.elpassion.door.githubclient.R
-import pl.elpassion.door.githubclient.User
+import pl.elpassion.door.githubclient.Repository
 
+class RepositoryItemAdapter(private val repository: Repository) : ItemAdapter {
 
-class UserItemAdapter(private val user: User) : ItemAdapter {
-
-    override val itemViewType = R.id.user_list_item
+    override val itemViewType = R.id.repository_list_item
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -23,14 +21,10 @@ class UserItemAdapter(private val user: User) : ItemAdapter {
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder) {
         val nameRateItemHolder = holder as UserItemHolder
-        Glide.with(nameRateItemHolder.avatar.context)
-                .load(user.avatarUrl)
-                .into(nameRateItemHolder.avatar)
-        nameRateItemHolder.name.text = user.name
+        nameRateItemHolder.name.text = repository.name
     }
 
     private inner class UserItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val name = itemView.findViewById(R.id.user_name) as TextView
-        val avatar = itemView.findViewById(R.id.user_avatar) as ImageView
+        val name = itemView.findViewById(R.id.repository_name) as TextView
     }
 }
