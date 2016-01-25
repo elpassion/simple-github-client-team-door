@@ -11,7 +11,7 @@ import android.support.v7.widget.RecyclerView
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
-import pl.elpassion.door.githubclient.GithubSearchViewActivity.Companion.retrofit
+import pl.elpassion.door.githubclient.GithubService.userRepositoriesService
 import pl.elpassion.door.githubclient.adapter.UserRepositoriesAdapter
 import rx.Subscription
 
@@ -31,9 +31,8 @@ class UserDetailsViewActivity : AppCompatActivity() {
     val repositoriesRecycleView: RecyclerView by lazy { findViewById(R.id.user_details_repositories_list) as RecyclerView }
     val userAvatar: ImageView by lazy { findViewById(R.id.user_details_avatar) as ImageView }
     val userName: TextView by lazy { findViewById(R.id.user_details_name) as TextView }
-    val userRepositoriesService by lazy { retrofit.create(UserRepositoriesService::class.java) }
     val user by lazy { intent.getParcelableExtra<User>(userKey) }
-    var subscription : Subscription? = null
+    var subscription: Subscription? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

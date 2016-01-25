@@ -8,5 +8,5 @@ import rx.Observable
 interface UserRepositoriesService {
 
     @GET("users/{user}/repos")
-    fun getUserRepositories(@Path("user") userName :String) : Observable<List<Repository>>
+    fun getUserRepositories(@Path("user") userName: String): Observable<List<Repository>>
 }

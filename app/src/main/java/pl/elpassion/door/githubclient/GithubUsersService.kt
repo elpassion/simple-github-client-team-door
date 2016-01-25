@@ -8,6 +8,6 @@ import rx.Observable
 interface GithubUsersService {
 
     @GET("search/users")
-    fun searchForUsersByName(@Query("q") name :String) :Observable<UserSearchResponse>
+    fun searchForUsersByName(@Query("q") name: String): Observable<UserSearchResponse>
 
 }

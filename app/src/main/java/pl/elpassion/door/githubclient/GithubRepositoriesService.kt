@@ -8,6 +8,6 @@ interface GithubRepositoriesService {
 
 
     @GET("search/repositories")
-    fun searchForReposByName(@Query("q") name :String) : Observable<RepositoriesSearchResponse>
+    fun searchForReposByName(@Query("q") name: String): Observable<RepositoriesSearchResponse>
 
 }

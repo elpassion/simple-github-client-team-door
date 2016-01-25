@@ -5,9 +5,9 @@ import pl.elpassion.door.githubclient.Repository
 import pl.elpassion.door.githubclient.User
 
 
-class GithubSearchResultListAdapter(val searchResults: List<GithubSearchItem> ) : BaseAdapter(){
+class GithubSearchResultListAdapter(val searchResults: List<GithubSearchItem>) : BaseAdapter() {
 
-    init{
+    init {
         searchResults.sortedBy { it.name }.forEach {
             if (it is User)
                 adapters.add(UserItemAdapter(it))
