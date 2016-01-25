@@ -9,6 +9,8 @@ import android.support.v7.widget.Toolbar
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
+import android.widget.CheckBox
+import android.widget.CompoundButton
 import android.widget.EditText
 import pl.elpassion.door.githubclient.GithubService.githubRepositoriesService
 import pl.elpassion.door.githubclient.GithubService.githubUsersService
@@ -18,6 +20,7 @@ import rx.Observable.zip
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
+import java.util.*
 
 fun <T> Observable<T>.applySchedulers(): Observable<T> {
     return this.subscribeOn(Schedulers.io())
@@ -34,7 +37,9 @@ class GithubSearchViewActivity : AppCompatActivity() {
     val githubRecycleView: RecyclerView by lazy { findViewById(R.id.search_results_list) as RecyclerView }
     val searchName: EditText by lazy { findViewById(R.id.search_name) as EditText }
     val toolbar: Toolbar by lazy { findViewById(R.id.toolbar) as Toolbar }
-    var subscription: Subscription? = null
+    var subscription : Subscription? = null
+    val checkBoxUsersOnly : CheckBox by lazy { findViewById(R.id.check_users_only) as CheckBox }
+    val searchResults: MutableList<GithubSearchItem> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +47,7 @@ class GithubSearchViewActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         githubRecycleView.layoutManager = LinearLayoutManager(this)
         searchName.addTextChangedListener(SearchNameChangedListener())
+        checkBoxUsersOnly.setOnCheckedChangeListener(CheckUsersOnlyListener())
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -53,6 +59,11 @@ class GithubSearchViewActivity : AppCompatActivity() {
         super.onDestroy()
         subscription?.unsubscribe()
     }
+
+    private fun setRecycleViewAdapter(githubSearchItems: List<GithubSearchItem>) {
+        githubRecycleView.adapter = GithubSearchResultListAdapter(githubSearchItems)
+    }
+
 
     inner class SearchNameChangedListener : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
@@ -74,18 +85,32 @@ class GithubSearchViewActivity : AppCompatActivity() {
         }
 
         private val onGithubItemsSearchSuccess = { it: List<GithubSearchItem> ->
-            setRecycleVieAdapter(it)
+            searchResults.clear()
+            searchResults.addAll(it)
+            if (checkBoxUsersOnly.isChecked)
+                setRecycleViewAdapter(searchResults.filter { it is User })
+            else
+                setRecycleViewAdapter(searchResults)
         }
 
-        private fun setRecycleVieAdapter(githubSearchItems: List<GithubSearchItem>) {
-            githubRecycleView.adapter = GithubSearchResultListAdapter(githubSearchItems)
-        }
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         }
+    }
+
+
+    inner class CheckUsersOnlyListener : CompoundButton.OnCheckedChangeListener{
+        override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+            if (isChecked)
+                setRecycleViewAdapter(searchResults.filter { it is User })
+            else
+                setRecycleViewAdapter(searchResults)
+
+        }
+
     }
 
 }
