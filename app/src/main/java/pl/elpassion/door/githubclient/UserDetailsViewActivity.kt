@@ -13,6 +13,7 @@ import android.widget.TextView
 import com.bumptech.glide.Glide
 import pl.elpassion.door.githubclient.GithubSearchViewActivity.Companion.retrofit
 import pl.elpassion.door.githubclient.adapter.UserRepositoriesAdapter
+import rx.Subscription
 
 class UserDetailsViewActivity : AppCompatActivity() {
 
@@ -32,6 +33,7 @@ class UserDetailsViewActivity : AppCompatActivity() {
     val userName: TextView by lazy { findViewById(R.id.user_details_name) as TextView }
     val userRepositoriesService by lazy { retrofit.create(UserRepositoriesService::class.java) }
     val user by lazy { intent.getParcelableExtra<User>(userKey) }
+    var subscription : Subscription? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,9 +44,10 @@ class UserDetailsViewActivity : AppCompatActivity() {
 
     private fun setUpUserRepositories(user: User) {
         repositoriesRecycleView.layoutManager = LinearLayoutManager(this)
-        userRepositoriesService.getUserRepositories(user.name)
+        subscription?.unsubscribe()
+        subscription = userRepositoriesService.getUserRepositories(user.name)
                 .applySchedulers()
-                .subscribe (onSuccess, onFailure)
+                .subscribe (onUserRepositoriesDownloadSuccess, onUserRepositoriesDownloadFailure)
     }
 
     private fun setUpUserDetails(user: User) {
@@ -54,13 +57,17 @@ class UserDetailsViewActivity : AppCompatActivity() {
                 .into(userAvatar)
     }
 
-    private val onSuccess = { it: List<Repository> ->
+    private val onUserRepositoriesDownloadSuccess = { it: List<Repository> ->
         repositoriesRecycleView.adapter = UserRepositoriesAdapter(it)
     }
 
-    private val onFailure = { x: Throwable ->
+    private val onUserRepositoriesDownloadFailure = { x: Throwable ->
         Snackbar.make(repositoriesRecycleView, endPointError, LENGTH_LONG).show()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        subscription?.unsubscribe()
+    }
 
 }
