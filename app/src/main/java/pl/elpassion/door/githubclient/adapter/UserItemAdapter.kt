@@ -22,11 +22,11 @@ class UserItemAdapter(private val user: User) : ItemAdapter {
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder) {
-        val nameRateItemHolder = holder as UserItemHolder
-        Glide.with(nameRateItemHolder.avatar.context)
+        val userHolder = holder as UserItemHolder
+        Glide.with(userHolder.avatar.context)
                 .load(user.avatarUrl)
-                .into(nameRateItemHolder.avatar)
-        nameRateItemHolder.name.text = user.name
+                .into(userHolder.avatar)
+        userHolder.name.text = user.name
     }
 
     private inner class UserItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

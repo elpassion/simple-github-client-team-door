@@ -15,15 +15,15 @@ class RepositoryItemAdapter(private val repository: Repository) : ItemAdapter {
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val view = layoutInflater.inflate(R.layout.github_search_repository_item, parent, false)
-        return UserItemHolder(view)
+        return RepositoryItemHolder(view)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder) {
-        val nameRateItemHolder = holder as UserItemHolder
-        nameRateItemHolder.name.text = repository.name
+        val repositoryHolder = holder as RepositoryItemHolder
+        repositoryHolder.name.text = repository.name
     }
 
-    private inner class UserItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private inner class RepositoryItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name = itemView.findViewById(R.id.repository_name) as TextView
     }
 }
