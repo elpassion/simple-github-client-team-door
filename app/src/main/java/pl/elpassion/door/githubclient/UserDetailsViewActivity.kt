@@ -3,48 +3,64 @@ package pl.elpassion.door.githubclient
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.Snackbar
+import android.support.design.widget.Snackbar.LENGTH_LONG
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
+import pl.elpassion.door.githubclient.GithubSearchViewActivity.Companion.retrofit
 import pl.elpassion.door.githubclient.adapter.UserRepositoriesAdapter
 
-class UserDetailsViewActivity : AppCompatActivity(){
+class UserDetailsViewActivity : AppCompatActivity() {
 
     companion object {
+        private val endPointError = "Problem z pobraniem danych z Githuba"
         private val userKey = "userKey"
 
-        fun start(context : Context, user : User) {
+        fun start(context: Context, user: User) {
             val intent = Intent(context, UserDetailsViewActivity::class.java)
             intent.putExtra(userKey, user)
             context.startActivity(intent)
         }
     }
 
-    val repositoriesRecycleView : RecyclerView by lazy { findViewById(R.id.user_details_repositories_list) as RecyclerView }
-    val userAvatar : ImageView by lazy { findViewById(R.id.user_details_avatar) as ImageView}
-    val userName : TextView by lazy { findViewById(R.id.user_details_name) as TextView}
-
-    val userRepositoriesService by lazy { GithubSearchViewActivity.retrofit.create(UserRepositoriesService::class.java) }
+    val repositoriesRecycleView: RecyclerView by lazy { findViewById(R.id.user_details_repositories_list) as RecyclerView }
+    val userAvatar: ImageView by lazy { findViewById(R.id.user_details_avatar) as ImageView }
+    val userName: TextView by lazy { findViewById(R.id.user_details_name) as TextView }
+    val userRepositoriesService by lazy { retrofit.create(UserRepositoriesService::class.java) }
+    val user by lazy { intent.getParcelableExtra<User>(userKey) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.github_user_details)
-        val user = intent.getParcelableExtra<User>(userKey)
+        setUpUserDetails(user)
+        setUpUserRepositories(user)
+    }
+
+    private fun setUpUserRepositories(user: User) {
+        repositoriesRecycleView.layoutManager = LinearLayoutManager(this)
+        userRepositoriesService.getUserRepositories(user.name)
+                .applySchedulers()
+                .subscribe (onSuccess, onFailure)
+    }
+
+    private fun setUpUserDetails(user: User) {
         userName.text = user.name
         Glide.with(this)
                 .load(user.avatarUrl)
                 .into(userAvatar)
-
-        repositoriesRecycleView.layoutManager = LinearLayoutManager(this)
-        userRepositoriesService.getUserRepositories(user.name)
-        .applySchedulers()
-        .subscribe ({ repositoriesRecycleView.adapter =  UserRepositoriesAdapter(it)},
-                {})
-        Log.e("Uzytkownik", user.name)
     }
+
+    private val onSuccess = { it: List<Repository> ->
+        repositoriesRecycleView.adapter = UserRepositoriesAdapter(it)
+    }
+
+    private val onFailure = { x: Throwable ->
+        Snackbar.make(repositoriesRecycleView, endPointError, LENGTH_LONG).show()
+    }
+
 
 }
