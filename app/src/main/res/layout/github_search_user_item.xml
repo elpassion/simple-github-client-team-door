@@ -3,7 +3,10 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/user_list_item"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:clickable="true"
+    android:background="@drawable/on_click"
+    android:gravity="center">
 
     <ImageView
         android:id="@+id/user_avatar"
@@ -15,8 +18,6 @@
         android:id="@+id/user_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
-
 
 
 </LinearLayout>
