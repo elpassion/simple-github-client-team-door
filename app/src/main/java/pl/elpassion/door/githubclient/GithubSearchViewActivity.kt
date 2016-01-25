@@ -19,6 +19,7 @@ import retrofit2.Retrofit
 import retrofit2.RxJavaCallAdapterFactory
 import rx.Observable
 import rx.Observable.zip
+import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 
@@ -47,6 +48,7 @@ class GithubSearchViewActivity : AppCompatActivity() {
     val githubUsersService by lazy { retrofit.create(GithubUsersService::class.java) }
     val searchName: EditText by lazy { findViewById(R.id.search_name) as EditText }
     val toolbar: Toolbar by lazy { findViewById(R.id.toolbar) as Toolbar }
+    var subscription : Subscription? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,12 +63,18 @@ class GithubSearchViewActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        subscription?.unsubscribe()
+    }
+
     inner class SearchNameChangedListener : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
             val searchName = searchName.text.toString()
             val usersObservable = githubUsersService.searchForUsersByName(searchName)
             val repositoriesObservable = githubRepositoriesService.searchForReposByName(searchName)
-            zip(usersObservable, repositoriesObservable, joinTwoCallsResponses)
+            subscription?.unsubscribe()
+            subscription = zip(usersObservable, repositoriesObservable, joinTwoCallsResponses)
                     .applySchedulers()
                     .subscribe (onSuccess, onFailure)
         }
