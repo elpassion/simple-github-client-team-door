@@ -19,7 +19,6 @@ import retrofit2.RxJavaCallAdapterFactory
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-import java.util.*
 
 fun <T> Observable<T>.applySchedulers(): Observable<T> {
     return this.subscribeOn(Schedulers.io())
@@ -43,28 +42,15 @@ class GithubSearchViewActivity : AppCompatActivity() {
     val githubUsersService by lazy { retrofit.create(GithubUsersService::class.java) }
     val githubRepositoriesService by lazy { retrofit.create(GithubRepositoriesService::class.java) }
     val searchName : EditText by lazy { findViewById(R.id.search_name) as EditText}
+    val toolbar : Toolbar by lazy { findViewById(R.id.toolbar) as Toolbar }
     val githubRecycleView : RecyclerView by lazy { findViewById(R.id.search_results_list) as RecyclerView}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.github_search_view)
-        val toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
-        githubRecycleView.layoutManager = LinearLayoutManager(githubRecycleView.context)
+        githubRecycleView.layoutManager = LinearLayoutManager(this)
         searchName.addTextChangedListener(SearchNameChangedListener())
-    }
-
-
-    private fun joinTwoCallsResponses(x: UserSearchResponse, y: RepositoriesSearchResponse) : List<GithubSearchItem> {
-        val githubSearchItems: MutableList<GithubSearchItem> = ArrayList()
-        githubSearchItems.addAll(x.items)
-        githubSearchItems.addAll(y.items)
-        githubSearchItems.sortBy { it.name }
-        return githubSearchItems
-    }
-
-    private fun setRecycleVieAdapter(githubSearchItems: List<GithubSearchItem>) {
-        githubRecycleView.adapter = GithubSearchResultListAdapter(githubSearchItems)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -76,17 +62,25 @@ class GithubSearchViewActivity : AppCompatActivity() {
         override fun afterTextChanged(s: Editable?) {
             val searchName = searchName.text.toString()
             githubUsersService.searchForUsersByName(searchName)
-                    .zipWith(githubRepositoriesService.searchForReposByName(searchName), { x, y ->
-                        joinTwoCallsResponses(x, y)})
+                    .zipWith(githubRepositoriesService.searchForReposByName(searchName), { userResponse, repositoriesResponse ->
+                        joinTwoCallsResponses(userResponse, repositoriesResponse)})
                     .applySchedulers()
                     .subscribe ({ setRecycleVieAdapter(it) }, {})
         }
+
+        private fun joinTwoCallsResponses(userResponse: UserSearchResponse, repositoriesResponse: RepositoriesSearchResponse) : List<GithubSearchItem> {
+            return ( userResponse.items + repositoriesResponse.items ).sortedBy { it.name }
+        }
+
+        private fun setRecycleVieAdapter(githubSearchItems: List<GithubSearchItem>) {
+            githubRecycleView.adapter = GithubSearchResultListAdapter(githubSearchItems)
+        }
+
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         }
-
     }
 
 }
