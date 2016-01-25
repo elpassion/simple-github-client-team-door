@@ -8,7 +8,6 @@ import android.support.v7.widget.Toolbar
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
-import android.widget.Button
 import android.widget.EditText
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
@@ -43,7 +42,6 @@ class GithubSearchViewActivity : AppCompatActivity() {
 
     val githubUsersService by lazy { retrofit.create(GithubUsersService::class.java) }
     val githubRepositoriesService by lazy { retrofit.create(GithubRepositoriesService::class.java) }
-    val button : Button by lazy { findViewById(R.id.search_button) as Button}
     val searchName : EditText by lazy { findViewById(R.id.search_name) as EditText}
     val githubRecycleView : RecyclerView by lazy { findViewById(R.id.search_results_list) as RecyclerView}
 
@@ -53,44 +51,11 @@ class GithubSearchViewActivity : AppCompatActivity() {
         val toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
         githubRecycleView.layoutManager = LinearLayoutManager(githubRecycleView.context)
-//        setOnButtonClickListener()
-
-        searchName.addTextChangedListener(object:TextWatcher {
-
-            override fun afterTextChanged(s: Editable?) {
-                val searchName = searchName.text.toString()
-                githubUsersService.searchForUsersByName(searchName).
-                        zipWith(githubRepositoriesService.searchForReposByName(searchName), { x, y ->
-                            sendAllGithubResultsToRecycleView(x, y)
-                        })
-                        .applySchedulers()
-                        .subscribe ({setRecycleVieAdapter(it)},{})
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-
-        })
+        searchName.addTextChangedListener(SearchNameChangedListener())
     }
 
-//    private fun setOnButtonClickListener() {
-//        button.setOnClickListener {
-//            val searchName = searchName.text.toString()
-//            githubUsersService.searchForUsersByName(searchName).
-//                    zipWith(githubRepositoriesService.searchForReposByName(searchName), { x, y ->
-//                        sendAllGithubResultsToRecycleView(x, y)
-//                    })
-//                    .applySchedulers()
-//                    .subscribe ({setRecycleVieAdapter(it)},{})
-//        }
-//    }
 
-
-
-    private fun sendAllGithubResultsToRecycleView(x: UserSearchResponse, y: RepositoriesSearchResponse) : List<GithubSearchItem> {
+    private fun joinTwoCallsResponses(x: UserSearchResponse, y: RepositoriesSearchResponse) : List<GithubSearchItem> {
         val githubSearchItems: MutableList<GithubSearchItem> = ArrayList()
         githubSearchItems.addAll(x.items)
         githubSearchItems.addAll(y.items)
@@ -105,6 +70,23 @@ class GithubSearchViewActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_github_search_view, menu)
         return true
+    }
+
+    inner class SearchNameChangedListener : TextWatcher {
+        override fun afterTextChanged(s: Editable?) {
+            val searchName = searchName.text.toString()
+            githubUsersService.searchForUsersByName(searchName)
+                    .zipWith(githubRepositoriesService.searchForReposByName(searchName), { x, y ->
+                        joinTwoCallsResponses(x, y)})
+                    .applySchedulers()
+                    .subscribe ({ setRecycleVieAdapter(it) }, {})
+        }
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        }
+
     }
 
 }
