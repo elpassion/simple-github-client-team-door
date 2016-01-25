@@ -1,6 +1,7 @@
 package pl.elpassion.door.githubclient
 
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -9,7 +10,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
 import android.widget.EditText
-import com.google.gson.FieldNamingPolicy
+import com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import pl.elpassion.door.githubclient.adapter.GithubSearchResultListAdapter
@@ -17,6 +18,7 @@ import retrofit2.GsonConverterFactory
 import retrofit2.Retrofit
 import retrofit2.RxJavaCallAdapterFactory
 import rx.Observable
+import rx.Observable.zip
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 
@@ -29,21 +31,22 @@ fun <T> Observable<T>.applySchedulers(): Observable<T> {
 class GithubSearchViewActivity : AppCompatActivity() {
 
     companion object {
+        private val endPointError = "Problem z pobraniem danych z Githuba"
         val baseUrl = "https://api.github.com"
-        val gson : Gson = GsonBuilder()
-        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-        .create()
+        val gson: Gson = GsonBuilder()
+                .setFieldNamingPolicy(LOWER_CASE_WITH_UNDERSCORES)
+                .create()
         val retrofit = Retrofit.Builder().baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build()
     }
 
-    val githubUsersService by lazy { retrofit.create(GithubUsersService::class.java) }
+    val githubRecycleView: RecyclerView by lazy { findViewById(R.id.search_results_list) as RecyclerView }
     val githubRepositoriesService by lazy { retrofit.create(GithubRepositoriesService::class.java) }
-    val searchName : EditText by lazy { findViewById(R.id.search_name) as EditText}
-    val toolbar : Toolbar by lazy { findViewById(R.id.toolbar) as Toolbar }
-    val githubRecycleView : RecyclerView by lazy { findViewById(R.id.search_results_list) as RecyclerView}
+    val githubUsersService by lazy { retrofit.create(GithubUsersService::class.java) }
+    val searchName: EditText by lazy { findViewById(R.id.search_name) as EditText }
+    val toolbar: Toolbar by lazy { findViewById(R.id.toolbar) as Toolbar }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,15 +64,23 @@ class GithubSearchViewActivity : AppCompatActivity() {
     inner class SearchNameChangedListener : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
             val searchName = searchName.text.toString()
-            githubUsersService.searchForUsersByName(searchName)
-                    .zipWith(githubRepositoriesService.searchForReposByName(searchName), { userResponse, repositoriesResponse ->
-                        joinTwoCallsResponses(userResponse, repositoriesResponse)})
+            val usersObservable = githubUsersService.searchForUsersByName(searchName)
+            val repositoriesObservable = githubRepositoriesService.searchForReposByName(searchName)
+            zip(usersObservable, repositoriesObservable, joinTwoCallsResponses)
                     .applySchedulers()
-                    .subscribe ({ setRecycleVieAdapter(it) }, {})
+                    .subscribe (onSuccess, onFailure)
         }
 
-        private fun joinTwoCallsResponses(userResponse: UserSearchResponse, repositoriesResponse: RepositoriesSearchResponse) : List<GithubSearchItem> {
-            return ( userResponse.items + repositoriesResponse.items ).sortedBy { it.name }
+        private val joinTwoCallsResponses =  { userResponse : UserSearchResponse, repositoriesResponse: RepositoriesSearchResponse ->
+                (userResponse.items + repositoriesResponse.items ).sortedBy { it.name }
+        }
+
+        private val onFailure = { e: Throwable ->
+            Snackbar.make(githubRecycleView, endPointError, Snackbar.LENGTH_LONG).show()
+        }
+
+        private val onSuccess = { it: List<GithubSearchItem> ->
+            setRecycleVieAdapter(it)
         }
 
         private fun setRecycleVieAdapter(githubSearchItems: List<GithubSearchItem>) {
