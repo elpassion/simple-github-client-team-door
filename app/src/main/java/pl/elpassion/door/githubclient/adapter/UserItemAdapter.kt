@@ -9,6 +9,7 @@ import android.widget.TextView
 import com.bumptech.glide.Glide
 import pl.elpassion.door.githubclient.R
 import pl.elpassion.door.githubclient.User
+import pl.elpassion.door.githubclient.UserDetailsViewActivity
 
 
 class UserItemAdapter(private val user: User) : ItemAdapter {
@@ -27,6 +28,10 @@ class UserItemAdapter(private val user: User) : ItemAdapter {
                 .load(user.avatarUrl)
                 .into(userHolder.avatar)
         userHolder.name.text = user.name
+        val view = userHolder.itemView
+        view.setOnClickListener {
+            UserDetailsViewActivity.start(view.context, user)
+        }
     }
 
     private inner class UserItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
