@@ -76,18 +76,18 @@ class GithubSearchViewActivity : AppCompatActivity() {
             subscription?.unsubscribe()
             subscription = zip(usersObservable, repositoriesObservable, joinTwoCallsResponses)
                     .applySchedulers()
-                    .subscribe (onSuccess, onFailure)
+                    .subscribe (onGithubItemsSearchSuccess, onGithubItemsSearchFailure)
         }
 
         private val joinTwoCallsResponses =  { userResponse : UserSearchResponse, repositoriesResponse: RepositoriesSearchResponse ->
                 (userResponse.items + repositoriesResponse.items ).sortedBy { it.name }
         }
 
-        private val onFailure = { e: Throwable ->
+        private val onGithubItemsSearchFailure = { e: Throwable ->
             Snackbar.make(githubRecycleView, endPointError, Snackbar.LENGTH_LONG).show()
         }
 
-        private val onSuccess = { it: List<GithubSearchItem> ->
+        private val onGithubItemsSearchSuccess = { it: List<GithubSearchItem> ->
             setRecycleVieAdapter(it)
         }
 
