@@ -5,8 +5,8 @@ import retrofit2.http.Path
 import rx.Observable
 
 
-interface GithubUserReposService {
+interface UserRepositoriesService {
 
     @GET("users/{user}/repos")
-    fun searchUserReposByUserName(@Path("user") userName :String) : Observable<RepositoriesSearchResponse>
+    fun getUserRepositories(@Path("user") userName :String) : Observable<List<Repository>>
 }
