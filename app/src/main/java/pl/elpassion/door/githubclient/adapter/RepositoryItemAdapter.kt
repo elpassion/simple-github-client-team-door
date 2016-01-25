@@ -14,7 +14,7 @@ class RepositoryItemAdapter(private val repository: Repository) : ItemAdapter {
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val view = layoutInflater.inflate(R.layout.github_search_result_list, parent, false)
+        val view = layoutInflater.inflate(R.layout.github_search_repository_item, parent, false)
         return UserItemHolder(view)
     }
 

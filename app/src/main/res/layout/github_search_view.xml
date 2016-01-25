@@ -28,11 +28,18 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+
         <EditText
             android:id="@+id/search_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/search_users_repo" />
+
+        <Button
+            android:id="@+id/search_button"
+            android:text="search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
     </LinearLayout><include layout="@layout/github_search_result_list" />
 </LinearLayout>

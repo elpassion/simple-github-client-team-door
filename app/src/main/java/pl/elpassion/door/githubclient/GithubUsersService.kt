@@ -5,11 +5,9 @@ import retrofit2.http.Query
 import rx.Observable
 
 
-interface GithubService {
+interface GithubUsersService {
 
     @GET("search/users")
     fun searchForUsersByName(@Query("q") name :String) :Observable<UserSearchResponse>
 
-    @GET("search/repositories")
-    fun searchForReposByName(@Query("q") name :String) :Observable<RepositoriesSearchResponse>
 }
