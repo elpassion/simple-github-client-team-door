@@ -14,7 +14,7 @@ open class BaseAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 return adapter.onCreateViewHolder(parent)
             }
         }
-        return null
+        throw RuntimeException()
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
