@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Menu
 import android.widget.Button
 import android.widget.EditText
@@ -51,20 +53,42 @@ class GithubSearchViewActivity : AppCompatActivity() {
         val toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
         githubRecycleView.layoutManager = LinearLayoutManager(githubRecycleView.context)
-        setOnButtonClickListener()
+//        setOnButtonClickListener()
+
+        searchName.addTextChangedListener(object:TextWatcher {
+
+            override fun afterTextChanged(s: Editable?) {
+                val searchName = searchName.text.toString()
+                githubUsersService.searchForUsersByName(searchName).
+                        zipWith(githubRepositoriesService.searchForReposByName(searchName), { x, y ->
+                            sendAllGithubResultsToRecycleView(x, y)
+                        })
+                        .applySchedulers()
+                        .subscribe ({setRecycleVieAdapter(it)},{})
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+        })
     }
 
-    private fun setOnButtonClickListener() {
-        button.setOnClickListener {
-            val searchName = searchName.text.toString()
-            githubUsersService.searchForUsersByName(searchName).
-                    zipWith(githubRepositoriesService.searchForReposByName(searchName), { x, y ->
-                        sendAllGithubResultsToRecycleView(x, y)
-                    })
-                    .applySchedulers()
-                    .subscribe ({setRecycleVieAdapter(it)},{})
-        }
-    }
+//    private fun setOnButtonClickListener() {
+//        button.setOnClickListener {
+//            val searchName = searchName.text.toString()
+//            githubUsersService.searchForUsersByName(searchName).
+//                    zipWith(githubRepositoriesService.searchForReposByName(searchName), { x, y ->
+//                        sendAllGithubResultsToRecycleView(x, y)
+//                    })
+//                    .applySchedulers()
+//                    .subscribe ({setRecycleVieAdapter(it)},{})
+//        }
+//    }
+
+
 
     private fun sendAllGithubResultsToRecycleView(x: UserSearchResponse, y: RepositoriesSearchResponse) : List<GithubSearchItem> {
         val githubSearchItems: MutableList<GithubSearchItem> = ArrayList()
