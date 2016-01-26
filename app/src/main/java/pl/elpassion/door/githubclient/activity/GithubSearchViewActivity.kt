@@ -11,9 +11,11 @@ import android.view.Menu
 import android.widget.CheckBox
 import android.widget.CompoundButton
 import android.widget.EditText
+import de.greenrobot.event.EventBus
 import pl.elpassion.door.githubclient.R
 import pl.elpassion.door.githubclient.adapter.GithubSearchResultListAdapter
 import pl.elpassion.door.githubclient.common.applySchedulers
+import pl.elpassion.door.githubclient.event.UserClickedEvent
 import pl.elpassion.door.githubclient.listeners.CustomTextWatcher
 import pl.elpassion.door.githubclient.service.github.GithubService.githubRepositoriesService
 import pl.elpassion.door.githubclient.service.github.GithubService.githubUsersService
@@ -33,10 +35,10 @@ class GithubSearchViewActivity : AppCompatActivity() {
     }
 
     val githubRecycleView: RecyclerView by lazy { findViewById(R.id.search_results_list) as RecyclerView }
-    val checkBoxUsersOnly : CheckBox by lazy { findViewById(R.id.check_users_only) as CheckBox }
+    val checkBoxUsersOnly: CheckBox by lazy { findViewById(R.id.check_users_only) as CheckBox }
     val searchName: EditText by lazy { findViewById(R.id.search_name) as EditText }
     val toolbar: Toolbar by lazy { findViewById(R.id.toolbar) as Toolbar }
-    var subscription : Subscription? = null
+    var subscription: Subscription? = null
     val searchResults: MutableList<GithubSearchItem> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,8 +60,22 @@ class GithubSearchViewActivity : AppCompatActivity() {
         subscription?.unsubscribe()
     }
 
+    override fun onStart() {
+        super.onStart()
+        EventBus.getDefault().register(this)
+    }
+
+    override fun onStop() {
+        EventBus.getDefault().unregister(this)
+        super.onStop()
+    }
+
+    fun onEvent(event: UserClickedEvent){
+        UserDetailsViewActivity.start(this, event.user)
+    }
+
     private fun setRecycleViewAdapter() {
-       val elements = if (checkBoxUsersOnly.isChecked)  searchResults.filter { it is User } else searchResults
+        val elements = if (checkBoxUsersOnly.isChecked) searchResults.filter { it is User } else searchResults
         githubRecycleView.adapter = GithubSearchResultListAdapter(elements)
     }
 
