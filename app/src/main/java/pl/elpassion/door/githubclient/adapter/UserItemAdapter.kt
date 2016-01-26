@@ -7,8 +7,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
+import de.greenrobot.event.EventBus
 import pl.elpassion.door.githubclient.R
-import pl.elpassion.door.githubclient.activity.UserDetailsViewActivity
+import pl.elpassion.door.githubclient.event.UserClickedEvent
 import pl.elpassion.door.githubclient.service.github.response.User
 
 
@@ -29,9 +30,12 @@ class UserItemAdapter(private val user: User) : ItemAdapter {
                 .into(userHolder.avatar)
         userHolder.name.text = user.name
         val view = userHolder.itemView
-        view.setOnClickListener {
-            UserDetailsViewActivity.start(view.context, user)
-        }
+        view.setOnClickListener(onUserClicked)
+    }
+
+    private val onUserClicked = { view: View ->
+        val userClickedEvent = UserClickedEvent(user)
+        EventBus.getDefault().post(userClickedEvent)
     }
 
     private inner class UserItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
