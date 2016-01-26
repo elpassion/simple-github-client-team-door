@@ -39,11 +39,11 @@
             android:id="@+id/check_users_only"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Users only"
+            android:text="@string/users_only"
             android:layout_weight="20"/>
-
 
     </LinearLayout>
 
     <include layout="@layout/github_search_result_list" />
+
 </LinearLayout>

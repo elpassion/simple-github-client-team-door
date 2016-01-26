@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Github client</string>
     <string name="action_settings">Settings</string>
-    <string name="search_users_repo">Search for user or repos</string>
+    <string name="search_users_repo">Search for user or repository</string>
+    <string name="users_only">Users only</string>
+    <string name="repositories">Repositories:</string>
 </resources>
