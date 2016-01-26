@@ -1,4 +1,4 @@
-package pl.elpassion.door.githubclient
+package pl.elpassion.door.githubclient.service.github
 
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson

@@ -1,4 +1,4 @@
-package pl.elpassion.door.githubclient
+package pl.elpassion.door.githubclient.application
 
 import android.app.Application
 import com.crashlytics.android.Crashlytics

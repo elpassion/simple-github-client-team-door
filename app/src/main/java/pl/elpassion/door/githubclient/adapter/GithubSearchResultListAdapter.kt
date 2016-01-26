@@ -1,8 +1,8 @@
 package pl.elpassion.door.githubclient.adapter
 
-import pl.elpassion.door.githubclient.GithubSearchItem
-import pl.elpassion.door.githubclient.Repository
-import pl.elpassion.door.githubclient.User
+import pl.elpassion.door.githubclient.service.github.response.GithubSearchItem
+import pl.elpassion.door.githubclient.service.github.response.Repository
+import pl.elpassion.door.githubclient.service.github.response.User
 
 
 class GithubSearchResultListAdapter(val searchResults: List<GithubSearchItem>) : BaseAdapter() {

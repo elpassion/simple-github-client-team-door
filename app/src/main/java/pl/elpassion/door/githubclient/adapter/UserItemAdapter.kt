@@ -8,8 +8,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import pl.elpassion.door.githubclient.R
-import pl.elpassion.door.githubclient.User
-import pl.elpassion.door.githubclient.UserDetailsViewActivity
+import pl.elpassion.door.githubclient.activity.UserDetailsViewActivity
+import pl.elpassion.door.githubclient.service.github.response.User
 
 
 class UserItemAdapter(private val user: User) : ItemAdapter {

@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import pl.elpassion.door.githubclient.R
-import pl.elpassion.door.githubclient.Repository
+import pl.elpassion.door.githubclient.service.github.response.Repository
 
 class RepositoryItemAdapter(private val repository: Repository) : ItemAdapter {
 

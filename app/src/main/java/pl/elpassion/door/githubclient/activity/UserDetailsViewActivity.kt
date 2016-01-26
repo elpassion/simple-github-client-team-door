@@ -1,4 +1,4 @@
-package pl.elpassion.door.githubclient
+package pl.elpassion.door.githubclient.activity
 
 import android.content.Context
 import android.content.Intent
@@ -11,8 +11,12 @@ import android.support.v7.widget.RecyclerView
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
-import pl.elpassion.door.githubclient.GithubService.userRepositoriesService
+import pl.elpassion.door.githubclient.R
 import pl.elpassion.door.githubclient.adapter.UserRepositoriesAdapter
+import pl.elpassion.door.githubclient.common.applySchedulers
+import pl.elpassion.door.githubclient.service.github.GithubService.userRepositoriesService
+import pl.elpassion.door.githubclient.service.github.response.Repository
+import pl.elpassion.door.githubclient.service.github.response.User
 import rx.Subscription
 
 class UserDetailsViewActivity : AppCompatActivity() {
