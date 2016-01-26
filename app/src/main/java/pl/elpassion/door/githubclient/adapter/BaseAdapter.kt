@@ -6,15 +6,11 @@ import java.util.*
 
 open class BaseAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    protected  val adapters = ArrayList<ItemAdapter>()
+    protected val adapters = ArrayList<ItemAdapter>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder? {
-        for (adapter in adapters) {
-            if (adapter.itemViewType == viewType) {
-                return adapter.onCreateViewHolder(parent)
-            }
-        }
-        throw RuntimeException()
+        return adapters.first { it.itemViewType == viewType }
+                .onCreateViewHolder(parent)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

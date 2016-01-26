@@ -12,13 +12,9 @@ import android.view.Menu
 import android.widget.CheckBox
 import android.widget.CompoundButton
 import android.widget.EditText
-import com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import pl.elpassion.door.githubclient.GithubService.githubRepositoriesService
+import pl.elpassion.door.githubclient.GithubService.githubUsersService
 import pl.elpassion.door.githubclient.adapter.GithubSearchResultListAdapter
-import retrofit2.GsonConverterFactory
-import retrofit2.Retrofit
-import retrofit2.RxJavaCallAdapterFactory
 import rx.Observable
 import rx.Observable.zip
 import rx.Subscription
@@ -36,19 +32,9 @@ class GithubSearchViewActivity : AppCompatActivity() {
 
     companion object {
         private val endPointError = "Problem z pobraniem danych z Githuba"
-        val baseUrl = "https://api.github.com"
-        val gson: Gson = GsonBuilder()
-                .setFieldNamingPolicy(LOWER_CASE_WITH_UNDERSCORES)
-                .create()
-        val retrofit = Retrofit.Builder().baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .build()
     }
 
     val githubRecycleView: RecyclerView by lazy { findViewById(R.id.search_results_list) as RecyclerView }
-    val githubRepositoriesService by lazy { retrofit.create(GithubRepositoriesService::class.java) }
-    val githubUsersService by lazy { retrofit.create(GithubUsersService::class.java) }
     val searchName: EditText by lazy { findViewById(R.id.search_name) as EditText }
     val toolbar: Toolbar by lazy { findViewById(R.id.toolbar) as Toolbar }
     var subscription : Subscription? = null
@@ -90,8 +76,8 @@ class GithubSearchViewActivity : AppCompatActivity() {
                     .subscribe (onGithubItemsSearchSuccess, onGithubItemsSearchFailure)
         }
 
-        private val joinTwoCallsResponses =  { userResponse : UserSearchResponse, repositoriesResponse: RepositoriesSearchResponse ->
-                (userResponse.items + repositoriesResponse.items ).sortedBy { it.name }
+        private val joinTwoCallsResponses = { userResponse: UserSearchResponse, repositoriesResponse: RepositoriesSearchResponse ->
+            (userResponse.items + repositoriesResponse.items ).sortedBy { it.name }
         }
 
         private val onGithubItemsSearchFailure = { e: Throwable ->
