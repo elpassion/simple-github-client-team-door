@@ -4,4 +4,5 @@
     <string name="search_users_repo">Search for user or repository</string>
     <string name="users_only">Users only</string>
     <string name="repositories">Repositories:</string>
+    <string name="user_icon">user_icon</string>
 </resources>
