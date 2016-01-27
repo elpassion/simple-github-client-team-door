@@ -24,31 +24,12 @@ class ApplicationTest : ActivityInstrumentationTestCase2<GithubSearchViewActivit
         activity
     }
 
-    private fun typeTextToSearch(text : String) {
-        onView(withId(R.id.search_name)).perform(typeText(text))
-    }
-
-    private fun clickOnCheckBox() {
-        onView(withId(R.id.check_users_only)).perform(click())
-    }
-
-
     fun testIfSnackBarShowsWhenNoGithubConnection() {
-
-        GithubService.githubUsersService = object : GithubUsersService {
-            override fun searchForUsersByName(name: String): Observable<UserSearchResponse> {
-                return Observable.error(Throwable())
-            }
-        }
-
-        GithubService.githubRepositoriesService = object : GithubRepositoriesService {
-            override fun searchForReposByName(name: String): Observable<RepositoriesSearchResponse> {
-                return Observable.error(Throwable())
-            }
-        }
-
+        setUserServiceToFail()
+        setRepositoriesServiceToFail()
+        val errorMessage = "Problem z pobraniem danych z Githuba"
         typeTextToSearch("t")
-        onView(withId(android.support.design.R.id.snackbar_text)).check(matches(withText("Problem z pobraniem danych z Githuba")))
+        checkIfSnackbarIsVisibleWithError(errorMessage)
     }
 
     fun testAfterTypedSomeTextInSearchFieldTextIsAppeared() {
@@ -62,23 +43,72 @@ class ApplicationTest : ActivityInstrumentationTestCase2<GithubSearchViewActivit
     }
 
     fun testIfTextIsTypedSomeResultsAreFound() {
-
-        GithubService.githubUsersService = object : GithubUsersService {
-            override fun searchForUsersByName(name: String): Observable<UserSearchResponse> {
-                return Observable.just(UserSearchResponse(listOf(User("TestName", "TestAvatar", "TestUrl"))))
-            }
-        }
-
-        GithubService.githubRepositoriesService = object : GithubRepositoriesService {
-            override fun searchForReposByName(name: String): Observable<RepositoriesSearchResponse> {
-                return Observable.just(RepositoriesSearchResponse(listOf(Repository("TestRepoName"))))
-            }
-        }
-
+        setUserServiceToReturnExampleUser()
+        setRepositoriesServiceToReturnExampleRepository()
         typeTextToSearch("tom")
+        checkIfSearchResultListIsNotEmpty()
+    }
+
+    private fun checkIfSnackbarIsVisibleWithError(errorMessage: String) {
+        onView(withId(android.support.design.R.id.snackbar_text)).check(matches(withText(errorMessage)))
+    }
+
+    private fun checkIfSearchResultListIsNotEmpty() {
         onView(withId(R.id.search_results_list)).check(matches(hasDescendant(isDisplayed())))
     }
 
+    private fun typeTextToSearch(text: String) {
+        onView(withId(R.id.search_name)).perform(typeText(text))
+    }
 
+    private fun clickOnCheckBox() {
+        onView(withId(R.id.check_users_only)).perform(click())
+    }
+
+    private fun setRepositoriesServiceToReturnExampleRepository() {
+        val repository = Repository("TestRepoName")
+        val listOfRepositories = listOf(repository)
+        setRepositoriesServiceToReturnRepositories(listOfRepositories)
+    }
+
+    private fun setUserServiceToReturnExampleUser() {
+        val user = User("TestName", "TestAvatar", "TestUrl")
+        val listOfUsers = listOf(user)
+        setUserServiceToReturnUsers(listOfUsers)
+    }
+
+    private fun setUserServiceToReturnUsers(listOfUsers: List<User>) {
+        val userSearchResponse = UserSearchResponse(listOfUsers)
+        val observable = Observable.just(userSearchResponse)
+        setUserServiceToReturn(observable)
+    }
+
+    private fun setRepositoriesServiceToReturnRepositories(listOfRepositories: List<Repository>) {
+        val repositoriesSearchResponse = RepositoriesSearchResponse(listOfRepositories)
+        val observable = Observable.just(repositoriesSearchResponse)
+        setRepositoriesServiceToReturn(observable)
+    }
+
+    private fun setRepositoriesServiceToFail() {
+        val observable = Observable.error<RepositoriesSearchResponse>(Throwable())
+        setRepositoriesServiceToReturn(observable)
+    }
+
+    private fun setUserServiceToFail() {
+        val observable = Observable.error<UserSearchResponse>(Throwable())
+        setUserServiceToReturn(observable)
+    }
+
+    private fun setUserServiceToReturn(observable: Observable<UserSearchResponse>) {
+        GithubService.githubUsersService = GithubUsersService { name: String ->
+            observable
+        }
+    }
+
+    private fun setRepositoriesServiceToReturn(observable: Observable<RepositoriesSearchResponse>) {
+        GithubService.githubRepositoriesService = GithubRepositoriesService { name: String ->
+            observable
+        }
+    }
 
 }
