@@ -18,8 +18,9 @@ object GithubService {
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
             .build()
 
-    val githubRepositoriesService by lazy { retrofit.create(GithubRepositoriesService::class.java) }
+//    val githubRepositoriesService by lazy { retrofit.create(GithubRepositoriesService::class.java) }
 //    var githubUsersService by lazy { retrofit.create(GithubUsersService::class.java) }
+    var githubRepositoriesService = retrofit.create(GithubRepositoriesService::class.java)
     var githubUsersService = retrofit.create(GithubUsersService::class.java)
     val userRepositoriesService by lazy { retrofit.create(UserRepositoriesService::class.java) }
 
