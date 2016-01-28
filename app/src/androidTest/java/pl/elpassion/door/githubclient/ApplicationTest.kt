@@ -1,5 +1,6 @@
 package pl.elpassion.door.githubclient
 
+import android.support.test.espresso.Espresso.closeSoftKeyboard
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.action.ViewActions.typeText
@@ -46,6 +47,7 @@ class ApplicationTest : ActivityInstrumentationTestCase2<GithubSearchViewActivit
         setUserServiceToReturnExampleUser()
         setRepositoriesServiceToReturnExampleRepository()
         typeTextToSearch("tom")
+        closeSoftKeyboard()
         checkIfSearchResultListIsNotEmpty()
     }
 
